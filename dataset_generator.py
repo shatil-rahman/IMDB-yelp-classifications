@@ -10,6 +10,7 @@ This module deals with preprocessing and generating the datasets from the yelp a
 """
 
 import numpy as np
+import string
 from sklearn.feature_extraction.text import CountVectorizer
 
 def genVocab(filename, output_filename, english):
@@ -47,32 +48,44 @@ def genVocab(filename, output_filename, english):
     
     output_file.writelines(vocabulary)
     text_file.close()
-    output_file.close()    
-    return vocabulary    
+    output_file.close() 
+    vocab = dict(zip(features, range(10000)))
+    return vocab    
+
+def genData(vocabulary_name, data_name, output_name):
+    '''
+    Generate dataset (file named data_name) using the learned vocabulary file, 
+    into the file named output_name
+    '''
     
+    #read the vocabulary, and the data from dataset
+    vocab = np.loadtxt(fname=vocabulary_name, dtype=str, delimiter='\t',usecols=(0,))
+    data_file = open(data_name, 'r')
+    output_file = open(output_name, 'w')
     
-#vocabulary = genVocab('hwk3_datasets/IMDB-train.txt', 'IMDB-vocab.txt',0)
-#vocabulary = genVocab('hwk3_datasets/IMDB-train.txt', 'IMDB-vocab-processed.txt',1)
-
-vocabulary_name = 'text_vocab.txt'
-data_name = 'test.txt'
-vocab = np.loadtxt(fname=vocabulary_name, dtype=str, delimiter='\t',usecols=(0,))
-data_file = open(data_name, 'r')
-lines = data_file.readlines()
-
-
-vectorizer = CountVectorizer(vocabulary=vocab)
-
-X = vectorizer.transform(lines)
-
-X = X.toarray()
-
-data_file.close()
-
+    lines = data_file.readlines()
+    vocabulary = dict(zip(vocab, range(10000)))
     
+    for line in lines:
+        words = line.split()
+        datapoint = ''
+        for i in range(len(words)):
+            word = str.lower(words[i])
+            word = word.translate(None, string.punctuation)
+            ID = vocabulary.get(word,-1)
+            if ID != -1:
+                if i > 0:
+                    datapoint = datapoint + " "
+                datapoint = datapoint + str(ID)
+        
+        datapoint = datapoint + "\t" + words[-1] + "\n"    
+        output_file.write(datapoint)
+
+    data_file.close()
+    output_file.close()
 
 
-
+genData('IMDB-vocab.txt','test.txt', 'testData.txt')
 
 
 
