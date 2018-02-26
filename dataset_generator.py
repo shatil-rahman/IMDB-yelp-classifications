@@ -63,13 +63,14 @@ def genData(vocabulary_name, data_name, output_name):
     data_file = open(data_name, 'r')
     output_file = open(output_name, 'w')
     
+    
     lines = data_file.readlines()
     vocabulary = dict(zip(vocab, range(10000)))
     
     for line in lines:
         words = line.split()
         datapoint = ''
-        for i in range(len(words)):
+        for i in range(len(words)-1):
             word = str.lower(words[i])
             word = word.translate(None, string.punctuation)
             ID = vocabulary.get(word,-1)
@@ -85,9 +86,10 @@ def genData(vocabulary_name, data_name, output_name):
     output_file.close()
 
 
-genData('IMDB-vocab.txt','test.txt', 'testData.txt')
-
-
+genVocab('hwk3_datasets/yelp-train.txt','hwk3_yelp/yelp-vocab.txt', 0)
+genData('hwk3_yelp/yelp-vocab.txt','hwk3_datasets/yelp-train.txt', 'hwk3_yelp/yelp-train.txt')
+genData('hwk3_yelp/yelp-vocab.txt','hwk3_datasets/yelp-valid.txt', 'hwk3_yelp/yelp-valid.txt')
+genData('hwk3_yelp/yelp-vocab.txt','hwk3_datasets/yelp-test.txt', 'hwk3_yelp/yelp-test.txt')
 
 
 

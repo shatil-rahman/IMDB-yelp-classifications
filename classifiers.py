@@ -18,6 +18,7 @@ from sklearn import metrics
 from sklearn.model_selection import PredefinedSplit
 from sklearn.model_selection import GridSearchCV
 from scipy.sparse import vstack
+from scipy import sparse
 import inputBoW
 
 def tuning(X_train, Y_train, X_val, Y_val, classifier, params):
@@ -62,52 +63,54 @@ def majority(Y_train, X_val):
     return Y_pred
 
 #Load the datasets
-X_train, Y_train = inputBoW.loadBinBoW('hwk3_IMDB/IMDB-train.txt',15000,10000)
-X_val, Y_val = inputBoW.loadBinBoW('hwk3_IMDB/IMDB-valid.txt',10000, 10000)
+#X_train, Y_train = inputBoW.loadBinBoW('hwk3_IMDB/IMDB-train.txt',15000,10000)
+#X_val, Y_val = inputBoW.loadBinBoW('hwk3_IMDB/IMDB-test.txt',25000, 10000)
 
-#X_trainf, Y_trainf = inputBoW.loadFreqBoW('hwk3_IMDB/IMDB-train.txt',25000,10000)
-#X_valf, Y_valf = inputBoW.loadFreqBoW('hwk3_IMDB/IMDB-valid.txt',10000, 10000)
+X_trainf, Y_trainf = inputBoW.loadFreqBoW('hwk3_IMDB/IMDB-train.txt',15000,10000)
+X_valf, Y_valf = inputBoW.loadFreqBoW('hwk3_IMDB/IMDB-test.txt',25000, 10000)
 
 ############################ Dumb Classifiers ###############################
-'''
-#Random Classifier:
-Y_pred = randomClf(X_val, 1, 6)
-f1 = metrics.f1_score(Y_val, Y_pred, average='micro')
 
-print "F1 score for random classifier is: " + str(f1)
+#Random Classifier:
+#Y_pred = randomClf(X_val, 0, 2)
+#f1 = metrics.f1_score(Y_val, Y_pred, average='macro')
+
+#print "F1 score for random classifier is: " + str(f1)
 
 #Majority Classifier:
-Y_pred = majority(Y_train, X_val)
-f1 = metrics.f1_score(Y_val, Y_pred, average='micro')
+#Y_pred = majority(Y_trainf, X_valf)
+#f1 = metrics.f1_score(Y_valf, Y_pred, average='macro')
 
-print "F1 score for majority classifier is: " + str(f1)
+#print "F1 score for majority classifier is: " + str(f1)
 
 
 ########################## Naive Bayes ######################################
 #Naive Bayes:
 #Best alpha for IMDB is 0.2
 #Best alpha for yelp is 0.0093
+'''
 clf = BernoulliNB(alpha=0.2)
 clf.fit(X_train,Y_train)
 Y_pred = clf.predict(X_val)
 f1 = metrics.f1_score(Y_val, Y_pred, average='macro')
 
 print "F1 score for Bernoulli Naive Bayes is: " + str(f1)
-
+'''
 
 #Gaussian Naive Bayes:
-#clf = GaussianNB()
-#clf.fit(X_trainf.toarray(),Y_trainf)
-#Y_pred = clf.predict(X_valf.toarray())
-#f1 = metrics.f1_score(Y_valf, Y_pred, average='macro')
+clf = GaussianNB()
+clf.fit(X_trainf.toarray(),Y_trainf)
+Y_pred = clf.predict(X_valf.toarray())
+f1 = metrics.f1_score(Y_valf, Y_pred, average='macro')
 
-#print "F1 score for Gaussian Naive Bayes is: " + str(f1)
-
+print "F1 score for Gaussian Naive Bayes is: " + str(f1)
+'''
 ########################### Support Vector Machines #########################
 #Linear SVM, binary BoW:
 #Best C for IMDB set is 0.01
 #Best C for yelp set is 0.1365
-clf_SVM = LinearSVC(C=0.1365,loss='hinge')
+
+clf_SVM = LinearSVC(C=0.01,loss='hinge')
 clf_SVM.fit(X_train, Y_train)
 Y_pred = clf_SVM.predict(X_val)
 f1 = metrics.f1_score(Y_val, Y_pred, average='macro')
@@ -118,7 +121,7 @@ print "F1 score for Linear SVM, binary BoW is: " + str(f1)
 #Linear SVM, frequency BoW:
 #Best C for IMDB set is 149.0
 #Best C for yelp set is 289.5/698.3
-clf_SVM = LinearSVC(C=149.0,loss='hinge', tol=1e-6)
+clf_SVM = LinearSVC(C=149.0,loss='hinge')
 clf_SVM.fit(X_trainf, Y_trainf)
 Y_pred = clf_SVM.predict(X_valf)
 f1 = metrics.f1_score(Y_valf, Y_pred, average='macro')
@@ -126,17 +129,18 @@ f1 = metrics.f1_score(Y_valf, Y_pred, average='macro')
 print "F1 score for Linear SVM, frequency BoW is: " + str(f1)
 
 ########################### Decision Trees    ################################
-'''
+
 #Decision Tree:
 #Best params for IMDB are max_depth=11, min_samples_leaf=12
 #Best params for yelp are max_depth=18, min_samples_leaf=32
+
 clf_DT = DecisionTreeClassifier(max_depth=11, min_samples_leaf=12)
 clf_DT.fit(X_train,Y_train)
 Y_pred = clf_DT.predict(X_val)
 f1 = metrics.f1_score(Y_val, Y_pred, average='macro')
 
 print "F1 score for Decision Tree, Binary BoW is: " + str(f1)
-'''
+
 #Decision Tree:
 #Best params for IMDB are max_depth=10, min_samples_leaf=14
 #Best params for yelp are max_depth=18, min_samples_leaf=20
@@ -146,7 +150,7 @@ Y_pred = clf_DT.predict(X_valf)
 f1 = metrics.f1_score(Y_valf, Y_pred, average='macro')
 
 print "F1 score for Decision Tree, frequency BoW is: " + str(f1)
-'''
+
 
 ########################## HyperParamater Tuning #############################
 #params_NB = {'alpha':np.linspace(0.001,0.01,100)}
